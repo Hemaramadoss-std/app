@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-512.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0d0b1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ScreenShift">
+  <title>ScreenShift — Zeova</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Nunito',sans-serif;background:#0d0b1a;color:#f0eaff;min-height:100vh;overflow-x:hidden;}
+    :root{
+      --bg1:#0d0b1a;--bg2:#151228;--bg3:#1e1a36;--bg4:#2a2450;
+      --purple:#a78bfa;--pink:#f472b6;--cyan:#67e8f9;--gold:#fbbf24;
+      --green:#4ade80;--red:#f87171;--white:#f0eaff;--muted:#8b7fb8;
+    }
+    .app{max-width:480px;margin:0 auto;padding:16px;position:relative;padding-bottom:100px;}
+    .nav{display:flex;justify-content:space-around;background:var(--bg3);border-radius:20px;padding:8px;margin-bottom:20px;border:1px solid #3d3570;position:sticky;top:10px;z-index:90;}
+    .nav-btn{flex:1;padding:8px 4px;border:none;background:transparent;color:var(--muted);border-radius:14px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .nav-btn i{font-size:20px;}
+    .nav-btn.active{background:linear-gradient(135deg,#4c1d95,#7c3aed);color:#fff;}
+    .header{text-align:center;margin-bottom:20px;}
+    .header h1{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .header p{font-size:13px;color:var(--muted);margin-top:4px;}
+    .card{background:var(--bg3);border-radius:20px;padding:16px;margin-bottom:14px;border:1px solid #3d3570;}
+    .card-title{font-size:14px;font-weight:800;color:var(--purple);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .card-title i{font-size:18px;}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+    .stat-box{background:var(--bg3);border-radius:16px;padding:12px 8px;text-align:center;border:1px solid #3d3570;}
+    .stat-num{font-size:22px;font-weight:800;}
+    .stat-num.gold{color:var(--gold);}
+    .stat-num.purple{color:var(--purple);}
+    .stat-num.green{color:var(--green);}
+    .stat-label{font-size:11px;color:var(--muted);margin-top:2px;font-weight:700;}
+    .btn{border:none;border-radius:14px;padding:10px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;cursor:pointer;transition:all .2s;}
+    .btn:active{transform:scale(.97);}
+    .btn-purple{background:linear-gradient(135deg,#6d28d9,#a855f7);color:#fff;}
+    .btn-pink{background:linear-gradient(135deg,#be185d,#f472b6);color:#fff;}
+    .btn-green{background:linear-gradient(135deg,#059669,#4ade80);color:#fff;}
+    .distract-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+    .distract-btn{background:var(--bg4);border:1.5px solid #4c3d87;border-radius:14px;padding:10px;color:var(--white);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;}
+    .distract-btn:hover,.distract-btn:active{border-color:var(--pink);color:var(--pink);}
+    .distract-btn i{font-size:18px;}
+    .todo-input-row{display:flex;gap:8px;margin-bottom:12px;}
+    .todo-input{flex:1;background:var(--bg4);border:1.5px solid #4c3d87;border-radius:12px;padding:10px 14px;color:var(--white);font-family:'Nunito',sans-serif;font-size:13px;}
+    .todo-input:focus{outline:none;border-color:var(--purple);}
+    .todo-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg4);border-radius:12px;margin-bottom:6px;border:1px solid #3d3570;}
+    .todo-check{width:18px;height:18px;border-radius:6px;border:2px solid var(--purple);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .todo-check.done{background:var(--purple);border-color:var(--purple);}
+    .todo-text{flex:1;font-size:13px;}
+    .todo-text.done{text-decoration:line-through;color:var(--muted);}
+    .todo-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0;}
+    .redirect-box{background:linear-gradient(135deg,#1e1a36,#2a1a40);border:1.5px solid var(--purple);border-radius:16px;padding:14px;margin-top:10px;display:none;}
+    .redirect-box.show{display:block;}
+    .redirect-tag{display:inline-block;background:#4c1d95;color:var(--purple);font-size:11px;font-weight:800;padding:3px 10px;border-radius:8px;margin-bottom:8px;}
+    .redirect-text{font-size:14px;font-weight:600;line-height:1.5;}
+    .streak-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+    .streak-day{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border:1.5px solid #3d3570;color:var(--muted);}
+    .streak-day.done{background:linear-gradient(135deg,#6d28d9,#a855f7);color:#fff;border-color:transparent;}
+    .streak-day.today{border-color:var(--purple);color:var(--purple);}
+    .profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6d28d9,#f472b6);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:32px;border:3px solid var(--purple);}
+    .chapter-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:14px;}
+    .star-bar-bg{background:var(--bg4);border-radius:10px;height:10px;margin:8px 0 14px;}
+    .star-bar-fill{background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:10px;height:10px;transition:width .6s ease;}
+    .story-cards{display:flex;flex-direction:column;gap:8px;}
+    .story-card{background:var(--bg4);border-radius:14px;padding:12px;border:1px solid #3d3570;}
+    .story-card.locked{opacity:.4;}
+    .story-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+    .story-card-title{font-size:13px;font-weight:800;}
+    .story-stars-badge{font-size:11px;color:var(--gold);font-weight:700;}
+    .story-card-text{font-size:12px;color:var(--muted);line-height:1.5;}
+    .week-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #2a2450;}
+    .week-stat:last-child{border-bottom:none;}
+    .week-label{font-size:13px;color:var(--muted);font-weight:700;}
+    .week-val{font-size:14px;font-weight:800;}
+    .bar-container{height:8px;background:var(--bg4);border-radius:8px;margin-top:8px;}
+    .bar-fill{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--purple),var(--pink));transition:width .8s ease;}
+    .verdicts{font-size:13px;line-height:1.7;color:var(--white);padding:12px;background:var(--bg4);border-radius:12px;border-left:3px solid var(--pink);margin-top:10px;}
+    .zeova-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;}
+    .zeova-overlay.show{display:flex;}
+    .zeova-popup{background:#1a1530;border:2px solid var(--purple);border-radius:28px;padding:24px;max-width:380px;width:100%;text-align:center;animation:zeovaPop .4s cubic-bezier(.34,1.56,.64,1);}
+    @keyframes zeovaPop{from{transform:scale(.5) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
+    .zeova-character{width:140px;height:160px;margin:0 auto 16px;position:relative;animation:float 3s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+    .wing-l,.wing-r{position:absolute;width:55px;height:70px;border-radius:50% 50% 50% 0;animation:wingFlap 1.2s ease-in-out infinite alternate;}
+    .wing-l{background:rgba(167,139,250,.3);border:2px solid rgba(167,139,250,.6);top:30px;left:-30px;transform:rotate(-30deg);transform-origin:right center;}
+    .wing-r{background:rgba(244,114,182,.3);border:2px solid rgba(244,114,182,.6);top:30px;right:-30px;transform:rotate(30deg) scaleX(-1);transform-origin:left center;}
+    @keyframes wingFlap{from{transform:rotate(-30deg) scaleY(1);}to{transform:rotate(-50deg) scaleY(.7);}}
+    .zeova-body{position:relative;width:80px;margin:0 auto;}
+    .zeova-head{width:62px;height:62px;background:linear-gradient(135deg,#f5c6a0,#f0a878);border-radius:50%;margin:0 auto;position:relative;z-index:2;}
+    .zeova-hair{position:absolute;width:70px;height:50px;background:linear-gradient(135deg,#d4a017,#f0c040);border-radius:50% 50% 0 0;top:-8px;left:-4px;z-index:1;}
+    .hair-long{position:absolute;width:16px;height:80px;background:linear-gradient(180deg,#d4a017,#f0c040);border-radius:8px;top:30px;z-index:0;}
+    .hair-l{left:-10px;transform:rotate(-8deg);}
+    .hair-r{right:-10px;transform:rotate(8deg);}
+    .zeova-eye{width:8px;height:9px;background:#2d1a4e;border-radius:50%;position:absolute;top:22px;}
+    .zeova-eye.l{left:15px;}
+    .zeova-eye.r{right:15px;}
+    .zeova-eye::after{content:'';width:3px;height:3px;background:#fff;border-radius:50%;position:absolute;top:1px;right:1px;}
+    .zeova-blush{width:12px;height:7px;background:rgba(244,114,182,.5);border-radius:50%;position:absolute;top:30px;}
+    .zeova-blush.l{left:8px;}
+    .zeova-blush.r{right:8px;}
+    .zeova-smile{width:20px;height:10px;border-bottom:2.5px solid #7c3355;border-radius:0 0 10px 10px;position:absolute;top:35px;left:50%;transform:translateX(-50%);}
+    .zeova-horn-l,.zeova-horn-r{position:absolute;width:8px;height:14px;background:linear-gradient(180deg,#f87171,#dc2626);border-radius:50% 50% 0 0;top:-16px;z-index:3;}
+    .zeova-horn-l{left:16px;transform:rotate(-15deg);}
+    .zeova-horn-r{right:16px;transform:rotate(15deg);}
+    .zeova-dress{width:70px;height:45px;background:linear-gradient(135deg,#6d28d9,#a855f7);border-radius:10px 10px 30px 30px;margin:0 auto;position:relative;z-index:2;}
+    .zeova-wand{position:absolute;width:4px;height:45px;background:linear-gradient(180deg,#f0c040,#a78bfa);border-radius:2px;right:-20px;top:-5px;z-index:3;}
+    .wand-star{position:absolute;top:-8px;right:-23px;font-size:16px;animation:twinkle 1s ease-in-out infinite alternate;}
+    @keyframes twinkle{from{opacity:1;transform:scale(1);}to{opacity:.4;transform:scale(.7);}}
+    .zeova-mood{font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:12px;}
+    .mood-savage{background:#4c1d20;color:var(--red);}
+    .mood-proud{background:#1a3a2a;color:var(--green);}
+    .mood-hype{background:#3a2a10;color:var(--gold);}
+    .mood-bored{background:#2a2a2a;color:#888;}
+    .zeova-message{font-size:14px;font-weight:700;line-height:1.6;color:var(--white);margin-bottom:16px;}
+    .zeova-dismiss{background:linear-gradient(135deg,#6d28d9,#f472b6);border:none;border-radius:14px;padding:12px 28px;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;}
+    .timer-badge{position:fixed;bottom:20px;right:16px;background:var(--bg3);border:1.5px solid var(--purple);border-radius:16px;padding:8px 14px;font-size:12px;font-weight:800;color:var(--purple);z-index:100;display:flex;align-items:center;gap:6px;}
+    .page{display:none;}
+    .page.active{display:block;}
+    .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:linear-gradient(135deg,#4c1d95,#6d28d9);border:1.5px solid var(--purple);border-radius:16px;padding:10px 20px;font-size:13px;font-weight:800;color:#fff;z-index:998;transition:transform .3s ease;white-space:nowrap;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    select{background:var(--bg4);border:1.5px solid #4c3d87;border-radius:12px;padding:10px 14px;color:var(--white);font-family:'Nunito',sans-serif;font-size:13px;}
+    select:focus{outline:none;border-color:var(--purple);}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <h2 class="sr-only">ScreenShift — productivity app with Zeova the fairy guide</h2>
+
+  <div class="header">
+    <h1>✦ ScreenShift</h1>
+    <p>powered by Zeova 🧚‍♀️😈</p>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('home')" id="nav-home">
+      <i class="ti ti-home" aria-hidden="true"></i>Home
+    </button>
+    <button class="nav-btn" onclick="showPage('tasks')" id="nav-tasks">
+      <i class="ti ti-checklist" aria-hidden="true"></i>Tasks
+    </button>
+    <button class="nav-btn" onclick="showPage('weekly')" id="nav-weekly">
+      <i class="ti ti-chart-bar" aria-hidden="true"></i>Weekly
+    </button>
+    <button class="nav-btn" onclick="showPage('profile')" id="nav-profile">
+      <i class="ti ti-user-circle" aria-hidden="true"></i>Profile
+    </button>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num gold" id="stat-stars">0</div>
+        <div class="stat-label">⭐ Stars</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num purple" id="stat-streak">0</div>
+        <div class="stat-label">🔥 Streak</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num green" id="stat-saved">0</div>
+        <div class="stat-label">⏱ Min Saved</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-mood-sad" aria-hidden="true"></i>I almost got distracted by...</div>
+      <div class="distract-grid">
+        <button class="distract-btn" onclick="logDistraction('Social Media')"><i class="ti ti-brand-instagram" aria-hidden="true"></i>Social Media</button>
+        <button class="distract-btn" onclick="logDistraction('YouTube')"><i class="ti ti-brand-youtube" aria-hidden="true"></i>YouTube</button>
+        <button class="distract-btn" onclick="logDistraction('Gaming')"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i>Gaming</button>
+        <button class="distract-btn" onclick="logDistraction('Random Scrolling')"><i class="ti ti-swipe" aria-hidden="true"></i>Random Scroll</button>
+      </div>
+      <div class="redirect-box" id="redirect-box">
+        <div class="redirect-tag" id="redirect-tag">DSA</div>
+        <div class="redirect-text" id="redirect-text"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-flame" aria-hidden="true"></i>This week's streak</div>
+      <div class="streak-row" id="streak-row"></div>
+    </div>
+
+    <div class="card" style="background:linear-gradient(135deg,#1e1a36,#2a1a40);border-color:#7c3aed;">
+      <div class="card-title" style="color:var(--pink)"><i class="ti ti-sparkles" aria-hidden="true"></i>Zeova says...</div>
+      <div id="zeova-tip" style="font-size:13px;line-height:1.7;font-weight:600;color:#e0d4ff;"></div>
+    </div>
+  </div>
+
+  <!-- TASKS PAGE -->
+  <div class="page" id="page-tasks">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list-check" aria-hidden="true"></i>Today's focus list</div>
+      <div class="todo-input-row">
+        <input class="todo-input" id="todo-input" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTodo()">
+        <select id="todo-cat">
+          <option value="DSA">DSA</option>
+          <option value="Exam">Exam</option>
+          <option value="Project">Project</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <button class="btn btn-purple" style="width:100%;margin-bottom:14px;" onclick="addTodo()">+ Add Task</button>
+      <div id="todo-list"></div>
+    </div>
+  </div>
+
+  <!-- WEEKLY PAGE -->
+  <div class="page" id="page-weekly">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar-stats" aria-hidden="true"></i>Weekly summary</div>
+      <div class="week-stat">
+        <span class="week-label">Productive hours logged</span>
+        <span class="week-val" style="color:var(--green)" id="w-hours">0 hrs</span>
+      </div>
+      <div class="bar-container"><div class="bar-fill" id="w-hours-bar" style="width:0%"></div></div>
+      <div class="week-stat">
+        <span class="week-label">Distractions caught</span>
+        <span class="week-val" style="color:var(--red)" id="w-dist">0</span>
+      </div>
+      <div class="week-stat">
+        <span class="week-label">Tasks completed</span>
+        <span class="week-val" style="color:var(--purple)" id="w-tasks">0</span>
+      </div>
+      <div class="week-stat">
+        <span class="week-label">Stars earned this week</span>
+        <span class="week-val" style="color:var(--gold)" id="w-stars">⭐ 0</span>
+      </div>
+      <div class="week-stat">
+        <span class="week-label">Streak days</span>
+        <span class="week-val" style="color:var(--cyan)" id="w-streak">0 days</span>
+      </div>
+      <div class="verdicts" id="zeova-verdict">Zeova is watching...</div>
+    </div>
+    <button class="btn btn-pink" style="width:100%;" onclick="logProductiveHour()">
+      ✅ Log productive hour (+3⭐)
+    </button>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="page" id="page-profile">
+    <div class="card" style="text-align:center;">
+      <div class="profile-avatar">🧚‍♀️</div>
+      <div style="font-size:18px;font-weight:800;margin-bottom:4px;">Hemss</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Future Google / Meta / Zoho Engineer</div>
+      <div class="chapter-badge" id="chapter-badge">👶 Childhood</div>
+      <div style="font-size:13px;color:var(--muted);display:flex;justify-content:space-between;margin-top:8px;">
+        <span id="stars-current">0 ⭐</span>
+        <span id="stars-next">50 ⭐ to next chapter</span>
+      </div>
+      <div class="star-bar-bg"><div class="star-bar-fill" id="star-bar" style="width:0%"></div></div>
+      <div style="font-size:13px;color:var(--muted);">Total stars: <span id="total-stars-profile" style="color:var(--gold);font-weight:800;">0</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-book" aria-hidden="true"></i>Zeova's life story</div>
+      <div class="story-cards" id="story-cards"></div>
+    </div>
+  </div>
+
+  <!-- ZEOVA POPUP OVERLAY -->
+  <div class="zeova-overlay" id="zeova-overlay">
+    <div class="zeova-popup">
+      <div class="zeova-character">
+        <div class="wing-l"></div>
+        <div class="wing-r"></div>
+        <div class="zeova-body">
+          <div class="hair-long hair-l"></div>
+          <div class="hair-long hair-r"></div>
+          <div class="zeova-head">
+            <div class="zeova-hair"></div>
+            <div class="zeova-horn-l"></div>
+            <div class="zeova-horn-r"></div>
+            <div class="zeova-eye l"></div>
+            <div class="zeova-eye r"></div>
+            <div class="zeova-blush l"></div>
+            <div class="zeova-blush r"></div>
+            <div class="zeova-smile"></div>
+          </div>
+          <div class="zeova-dress">
+            <div class="zeova-wand"><div class="wand-star">✦</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="zeova-mood" id="zeova-mood-badge">😈 Savage Mode</div>
+      <div class="zeova-message" id="zeova-popup-msg"></div>
+      <button class="zeova-dismiss" onclick="dismissZeova()">Ok ok I got it 💅</button>
+    </div>
+  </div>
+
+  <!-- COUNTDOWN TIMER BADGE -->
+  <div class="timer-badge" id="timer-badge">
+    <i class="ti ti-clock" aria-hidden="true"></i>
+    <span id="timer-text">60:00</span>
+  </div>
+
+  <!-- STAR TOAST -->
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  const CHAPTERS = [
+    {title:"👶 Childhood",min:0,max:50,color:"#4ade80",bg:"#1a3a2a",
+      story:"Baby Zeova discovered her wings in a glowing mushroom forest. Tiny devil horns sprouted the first time she skipped fairy homework. She learned magic only works if you put in the effort first.",
+      unlock:"Zeova's origin — the mischievous baby fairy who refused to follow rules but secretly studied twice as hard."},
+    {title:"🧒 Teen Years",min:50,max:150,color:"#f472b6",bg:"#3a1a2a",
+      story:"Zeova cut her golden hair in rebellion and discovered dark fairy magic in ancient books. Got expelled twice but aced every exam. 'Rules are for fairies who don't understand them yet.'",
+      unlock:"Rebel arc unlocked! Zeova breaks boundaries but never breaks her grind."},
+    {title:"🎓 Adulthood",min:150,max:300,color:"#a78bfa",bg:"#2a1a40",
+      story:"Zeova entered the Royal Fairy Academy, top of her class. She balanced dark sorcery with light magic — like you balance DSA with exam prep. She graduated with a wand made of pure starlight.",
+      unlock:"Zeova conquers Fairy University. Her study habits? Legendary."},
+    {title:"💼 Career",min:300,max:500,color:"#67e8f9",bg:"#0a2a36",
+      story:"Zeova became the youngest Dark Fairy Sorceress in the realm. She built magical systems that ran the entire kingdom. 'Every line of spell code matters,' she'd say. Sound familiar?",
+      unlock:"Career arc — Zeova becomes the top engineer of the fairy world."},
+    {title:"💕 Love Story",min:500,max:750,color:"#f87171",bg:"#3a1a1a",
+      story:"Zeova met a mysterious star-knight who matched her in wit and stubbornness. Their love story was written in constellation maps. But who would she choose — light or dark?",
+      unlock:"Romance arc unlocked! Zeova's heart has finally opened."},
+    {title:"👑 Legendary Era",min:750,max:1000,color:"#fbbf24",bg:"#3a2a0a",
+      story:"Zeova became Queen of the Fairy-Devil Realm. She united both worlds. Her kingdom ran on discipline, magic, and a brutal work ethic. Every lazy fairy feared her daily schedule.",
+      unlock:"Queen Zeova — the most powerful ruler the realm has ever seen."},
+    {title:"🌌 Myth & Legacy",min:1000,max:99999,color:"#ffffff",bg:"#1a1a3a",
+      story:"Zeova's story was etched into the stars. Legends say she still visits students grinding at midnight. She became the spirit of every person who chose discipline over distraction. You found her.",
+      unlock:"SECRET ENDING — Zeova becomes eternal. You are now legendary too."}
+  ];
+
+  const REDIRECTS = [
+    {tag:"DSA 💻",text:"Solve a two-pointer problem right now. Open LeetCode — Easy to Medium. You need 150+ problems for Google/Meta. Every minute counts."},
+    {tag:"Exam 📚",text:"Grab your notes and read 2 pages on a topic you have been avoiding. Competitive exams reward consistent revision, not last-minute panic."},
+    {tag:"CS Concept 🧠",text:"Quick! What is the time complexity of quicksort in the worst case? If you hesitated, open CLRS or GeeksforGeeks right now."},
+    {tag:"Project 🚀",text:"Open your project repo. Make one small commit — even a README update. Hackathon wins come from consistent progress, not sprints."},
+    {tag:"Interview Prep 🎯",text:"Practice one behavioral question out loud: 'Tell me about a time you solved a hard problem.' Zoho and Meta both love these."},
+    {tag:"DSA 💻",text:"Implement a binary search from scratch — no looking it up. This is asked in almost every Google/Meta first round. Go."},
+    {tag:"Exam 📚",text:"Write 5 key points from your last exam topic on paper. Writing reinforces memory better than reading."},
+    {tag:"CS Concept 🧠",text:"What is the difference between a process and a thread? If you cannot explain it in 30 seconds, revise OS concepts now."},
+  ];
+
+  const ZEOVA_TIPS = [
+    "Google does not care about your screen time. They care about your problem-solving time. Choose wisely 💅",
+    "Every minute you scroll, someone else is solving LeetCode mediums. Just saying 🧚‍♀️",
+    "Your future Meta internship offer is on the other side of this distraction. Put it down.",
+    "I have seen fairies with less potential waste it all on reels. Do not be that fairy 😤",
+    "Zoho is hiring. Meta is hiring. Google is hiring. Are YOU preparing? ✨",
+    "One hour of deep DSA practice beats 4 hours of passive scrolling. I did the math 🔢",
+    "Hackathon season is coming. Your project will not build itself. Open VS Code 👑",
+    "Resume gap? Fill it with a project, not a YouTube rabbit hole. I am watching 😈",
+  ];
+
+  const SAVAGE_MSGS = [
+    "Did you just waste another hour?? Google has 3 rounds of DSA interviews and you are here scrolling. Cute. 💅",
+    "An hour passed. I waited. What did YOU do? ...Exactly. Open LeetCode NOW bestie 😤",
+    "Your future self just sent me a message — they are NOT happy with you right now 🧚‍♀️",
+    "One hour gone. That is 3 DSA problems you could have solved. Want to explain yourself? 😈",
+    "Zeova check-in! How many tasks did you finish? If the answer is zero, we need to talk. 👀",
+  ];
+  const PROUD_MSGS = [
+    "OKAY you actually did something productive!! I am — I am proud of you 🥺✨ Do not make it weird.",
+    "You logged a productive hour?! Stars earned! Keep this energy and Meta will be begging for you 🔥",
+    "I set a timer to roast you and now I have nothing to say. You did great. Begrudgingly. ✨",
+    "Productive streak detected. This is the Hemss that gets into Google. Do not stop now. 💜",
+  ];
+  const HYPE_MSGS = [
+    "STREAK MILESTONE!! The fairy realm is celebrating you right now!! 🎉🧚‍♀️",
+    "YOOO your consistency is actually insane! This is the energy Google wants!! 🔥⭐",
+    "THREE DAYS STRAIGHT?! That is not luck — that is a system. You are building one 👑",
+  ];
+
+  let state = {
+    stars:0,streak:0,savedMin:0,
+    distractions:0,tasksCompleted:0,productiveHours:0,
+    weekStars:0,todos:[],
+  };
+
+  function loadState(){
+    try{
+      const s = localStorage.getItem('screenshift_v2');
+      if(s) state = {...state,...JSON.parse(s)};
+    }catch(e){}
+  }
+
+  function saveState(){
+    try{ localStorage.setItem('screenshift_v2', JSON.stringify(state)); }catch(e){}
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2500);
+  }
+
+  function earnStars(n, reason){
+    state.stars += n;
+    state.weekStars += n;
+    saveState();
+    updateStats();
+    updateProfile();
+    showToast('+'+n+' ⭐ '+reason);
+  }
+
+  function logDistraction(type){
+    state.distractions++;
+    state.savedMin += 30;
+    earnStars(1,'distraction caught!');
+    saveState();
+    updateWeekly();
+    const r = REDIRECTS[Math.floor(Math.random()*REDIRECTS.length)];
+    document.getElementById('redirect-tag').textContent = r.tag;
+    document.getElementById('redirect-text').textContent = r.text;
+    document.getElementById('redirect-box').classList.add('show');
+  }
+
+  function addTodo(){
+    const inp = document.getElementById('todo-input');
+    const cat = document.getElementById('todo-cat').value;
+    const txt = inp.value.trim();
+    if(!txt) return;
+    state.todos.push({text:txt,cat,done:false,id:Date.now()});
+    inp.value='';
+    saveState();
+    renderTodos();
+  }
+
+  function toggleTodo(id){
+    const t = state.todos.find(x=>x.id===id);
+    if(!t) return;
+    if(!t.done){
+      t.done=true;
+      state.tasksCompleted++;
+      earnStars(2,'task completed!');
+      state.weekStars+=2;
+      saveState();
+      updateWeekly();
+    } else {
+      t.done=false;
+      saveState();
+    }
+    renderTodos();
+  }
+
+  function deleteTodo(id){
+    state.todos = state.todos.filter(x=>x.id!==id);
+    saveState();
+    renderTodos();
+  }
+
+  function renderTodos(){
+    const list = document.getElementById('todo-list');
+    if(!state.todos.length){
+      list.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px;">No tasks yet — add one above!</div>';
+      return;
+    }
+    list.innerHTML = state.todos.map(t=>`
+      <div class="todo-item">
+        <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${t.id})">
+          ${t.done?'<i class="ti ti-check" style="font-size:12px;color:#fff" aria-hidden="true"></i>':''}
+        </div>
+        <span class="todo-text ${t.done?'done':''}">${t.text}</span>
+        <span style="font-size:11px;color:var(--muted);font-weight:700;margin-right:6px;">${t.cat}</span>
+        <button class="todo-del" onclick="deleteTodo(${t.id})">
+          <i class="ti ti-trash" style="font-size:16px;" aria-hidden="true"></i>
+        </button>
+      </div>`).join('');
+  }
+
+  function logProductiveHour(){
+    state.productiveHours++;
+    state.streak++;
+    earnStars(3,'productive hour!');
+    saveState();
+    updateWeekly();
+    updateStreak();
+    if(state.streak%3===0) showZeova('hype');
+  }
+
+  function updateStats(){
+    document.getElementById('stat-stars').textContent = state.stars;
+    document.getElementById('stat-streak').textContent = state.streak;
+    document.getElementById('stat-saved').textContent = state.savedMin;
+  }
+
+  function updateStreak(){
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const d = new Date().getDay();
+    const today = d===0?6:d-1;
+    const row = document.getElementById('streak-row');
+    row.innerHTML = days.map((day,i)=>`
+      <div class="streak-day ${i<state.streak%7?'done':''} ${i===today?'today':''}">
+        ${day}
+      </div>`).join('');
+  }
+
+  function updateProfile(){
+    const s = state.stars;
+    const ch = CHAPTERS.find(c=>s>=c.min&&s<c.max)||CHAPTERS[CHAPTERS.length-1];
+    const idx = CHAPTERS.indexOf(ch);
+    const next = CHAPTERS[idx+1];
+    const pct = next ? Math.min(100,((s-ch.min)/(ch.max-ch.min))*100) : 100;
+    const badge = document.getElementById('chapter-badge');
+    badge.textContent = ch.title;
+    badge.style.background = ch.bg;
+    badge.style.color = ch.color;
+    badge.style.border = '1.5px solid '+ch.color;
+    document.getElementById('star-bar').style.width = pct+'%';
+    document.getElementById('stars-current').textContent = s+' ⭐';
+    document.getElementById('stars-next').textContent = next?(ch.max-s)+' ⭐ to next chapter':'🌌 Legendary!';
+    document.getElementById('total-stars-profile').textContent = s;
+    renderStoryCards();
+  }
+
+  function renderStoryCards(){
+    const s = state.stars;
+    const el = document.getElementById('story-cards');
+    el.innerHTML = CHAPTERS.map(ch=>{
+      const locked = s < ch.min;
+      return `<div class="story-card ${locked?'locked':''}">
+        <div class="story-card-header">
+          <span class="story-card-title" style="color:${locked?'var(--muted)':ch.color}">${ch.title}</span>
+          <span class="story-stars-badge">${locked?'🔒 '+ch.min+'⭐':'✅ Unlocked'}</span>
+        </div>
+        <div class="story-card-text">${locked?ch.unlock:ch.story}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateWeekly(){
+    document.getElementById('w-hours').textContent = state.productiveHours+' hrs';
+    document.getElementById('w-hours-bar').style.width = Math.min(100,state.productiveHours*10)+'%';
+    document.getElementById('w-dist').textContent = state.distractions;
+    document.getElementById('w-tasks').textContent = state.tasksCompleted;
+    document.getElementById('w-stars').textContent = '⭐ '+state.weekStars;
+    document.getElementById('w-streak').textContent = state.streak+' days';
+    const mood = state.productiveHours >= 5 ? 'proud' : state.distractions > state.productiveHours ? 'savage' : 'bored';
+    const verdicts = {
+      proud:"Not bad, bestie. You actually showed up this week. The numbers impressed me — I said what I said. Keep this up and Google will be calling. ✨",
+      savage:"The distractions are winning this week. I am not mad — I am disappointed. Actually, a little mad. Open LeetCode this instant. 😤",
+      bored:"You logged basically nothing this week. I yawned writing this. Wake me up when you decide to try. 😴",
+    };
+    document.getElementById('zeova-verdict').textContent = '🧚‍♀️ Zeova says: '+verdicts[mood];
+  }
+
+  function showZeova(forceMood){
+    let mood = forceMood;
+    if(!mood) mood = state.productiveHours > state.distractions ? 'proud' : 'savage';
+    const msgs = {
+      savage:SAVAGE_MSGS,
+      proud:PROUD_MSGS,
+      hype:HYPE_MSGS,
+      bored:["I have been waiting here for an hour and you still have not logged anything. I am literally yawning. 😴"]
+    };
+    const moodLabels = {
+      savage:'😈 Savage Mode',
+      proud:'🧚 Proud Mode',
+      hype:'🔥 Hype Mode',
+      bored:'😴 Bored Mode'
+    };
+    const arr = msgs[mood]||SAVAGE_MSGS;
+    document.getElementById('zeova-popup-msg').textContent = arr[Math.floor(Math.random()*arr.length)];
+    document.getElementById('zeova-mood-badge').textContent = moodLabels[mood]||'😈 Savage Mode';
+    document.getElementById('zeova-mood-badge').className = 'zeova-mood mood-'+mood;
+    document.getElementById('zeova-overlay').classList.add('show');
+  }
+
+  function dismissZeova(){
+    document.getElementById('zeova-overlay').classList.remove('show');
+  }
+
+  function showPage(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    document.getElementById('nav-'+name).classList.add('active');
+    if(name==='weekly') updateWeekly();
+    if(name==='profile') updateProfile();
+  }
+
+  function rotateTip(){
+    document.getElementById('zeova-tip').textContent = ZEOVA_TIPS[Math.floor(Math.random()*ZEOVA_TIPS.length)];
+  }
+
+  // HOURLY COUNTDOWN TIMER — Zeova appears every 60 minutes
+  let secondsLeft = 3600;
+  function startTimer(){
+    setInterval(()=>{
+      secondsLeft--;
+      const m = Math.floor(secondsLeft/60);
+      const s = String(secondsLeft%60).padStart(2,'0');
+      document.getElementById('timer-text').textContent = m+':'+s;
+      if(secondsLeft <= 0){
+        secondsLeft = 3600;
+        showZeova();
+      }
+    }, 1000);
+  }
+
+  // INIT
+  loadState();
+  updateStats();
+  updateStreak();
+  updateProfile();
+  renderTodos();
+  updateWeekly();
+  rotateTip();
+  setInterval(rotateTip, 15000);
+  startTimer();
+</script>
+</body>
+</html>
